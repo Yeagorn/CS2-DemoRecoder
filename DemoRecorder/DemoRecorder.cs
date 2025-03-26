@@ -61,6 +61,9 @@ public class DemoRecorder : BasePlugin, IPluginConfig<PluginConfig>
         RegisterEventHandler<EventCsIntermission>(OnEventCsIntermissionPost);
         RegisterListener<Listeners.OnMapStart>(OnMapStartHandler);
         RegisterListener<Listeners.OnMapEnd>(OnMapEndHandler);
+        AddCommandListener("changelevel", CommandListener_Changelevel, HookMode.Pre);
+        AddCommandListener("host_workshop_map", CommandListener_Workshop, HookMode.Pre);
+        AddCommandListener("ds_workshop_changelevel", CommandListener_WorkshopLevel, HookMode.Pre);
         UploadAllDemos();
     }
 
@@ -196,6 +199,111 @@ public class DemoRecorder : BasePlugin, IPluginConfig<PluginConfig>
         if(bUploadOld)
         {
             UploadAllDemos();
+        }
+    }
+
+     private HookResult CommandListener_WorkshopLevel(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (AdminManager.PlayerHasPermissions(player, "@css/generic")) {
+            if (bOldState)
+            {
+                // Stop the demo recording
+                RecordDemo(false);
+
+                // Get the next map's name, remove any quotes, trim spaces, and convert to lowercase
+                var _nextMap = commandInfo.ArgString.Trim().Replace("\"", "").ToLower();
+
+                // Validate if the map name is not empty or invalid
+                if (string.IsNullOrWhiteSpace(_nextMap))
+                {
+                    Logger.LogWarning(">> CommandListener_Changelevel: Invalid map name provided.");
+                    return HookResult.Continue; // Allow the command to continue since the map name is invalid
+                }
+
+                // Schedule the map change after a 2-second delay
+                AddTimer(2.0f, () =>
+                {
+                    Server.ExecuteCommand($"ds_workshop_changelevel {_nextMap}");
+                });
+
+                // Stop further processing of the changelevel command
+                return HookResult.Stop;
+            }
+
+            // Continue with the normal execution of the changelevel command if conditions are not met
+            return HookResult.Continue;
+        } else {
+            return HookResult.Stop; 
+        }
+    }
+
+    private HookResult CommandListener_Workshop(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (AdminManager.PlayerHasPermissions(player, "@css/generic")) {
+            if (bOldState)
+            {
+                // Stop the demo recording
+                RecordDemo(false);
+
+                // Get the next map's name, remove any quotes, trim spaces, and convert to lowercase
+                var _nextMap = commandInfo.ArgString.Trim().Replace("\"", "").ToLower();
+
+                // Validate if the map name is not empty or invalid
+                if (string.IsNullOrWhiteSpace(_nextMap))
+                {
+                    Logger.LogWarning(">> CommandListener_Changelevel: Invalid map name provided.");
+                    return HookResult.Continue; // Allow the command to continue since the map name is invalid
+                }
+
+                // Schedule the map change after a 2-second delay
+                AddTimer(2.0f, () =>
+                {
+                    Server.ExecuteCommand($"host_workshop_map {_nextMap}");
+                });
+
+                // Stop further processing of the changelevel command
+                return HookResult.Stop;
+            }
+
+            // Continue with the normal execution of the changelevel command if conditions are not met
+            return HookResult.Continue;
+        } else {
+            return HookResult.Stop; 
+        }
+    }
+
+    private HookResult CommandListener_Changelevel(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        if (AdminManager.PlayerHasPermissions(player, "@css/generic")) {
+            if (bOldState)
+            {
+                // Stop the demo recording
+                RecordDemo(false);
+
+                // Get the next map's name, remove any quotes, trim spaces, and convert to lowercase
+                var _nextMap = commandInfo.ArgString.Trim().Replace("\"", "").ToLower();
+
+                // Validate if the map name is not empty or invalid
+                if (string.IsNullOrWhiteSpace(_nextMap))
+                {
+                    Logger.LogWarning(">> CommandListener_Changelevel: Invalid map name provided.");
+                    return HookResult.Continue; // Allow the command to continue since the map name is invalid
+                }
+
+                // Schedule the map change after a 2-second delay
+                AddTimer(2.0f, () =>
+                {
+                    Server.ExecuteCommand($"changelevel {_nextMap}");
+                });
+
+                // Stop further processing of the changelevel command
+                return HookResult.Stop;
+            }
+
+            // Continue with the normal execution of the changelevel command if conditions are not met
+            return HookResult.Continue;
+        } else {
+            return HookResult.Stop; 
         }
     }
 
